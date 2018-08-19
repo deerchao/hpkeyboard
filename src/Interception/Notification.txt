@@ -1,0 +1,3 @@
+Interception is developed at https://github.com/oblitum/Interception
+Including these files is only meant to make it easier for users of this software.
+If the author/owner of Interception thinks it's nessary to remove those files, please contact me.

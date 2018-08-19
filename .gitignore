@@ -1,0 +1,4 @@
+﻿*.suo
+.vs
+bin/
+obj/
