@@ -90,5 +90,8 @@ namespace kchordr
 
         [DllImport("interception.dll", EntryPoint = "interception_wait", CallingConvention = CallingConvention.Cdecl)]
         public static extern int Wait(IntPtr context);
+
+        [DllImport("interception.dll", EntryPoint = "interception_wait_with_timeout", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int Wait(IntPtr context, uint milliseconds);
     }
 }

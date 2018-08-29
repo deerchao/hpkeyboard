@@ -4,13 +4,12 @@ using System.Threading;
 
 namespace HpKeyService
 {
-    class HpKeyboard
+    public class HpKeyboard
     {
         public static void Run()
         {
             var input = new List<Interception.KeyStroke>(6);
 
-            int device;
             var stroke = new Interception.Stroke();
             var context = Interception.CreateContext();
 
@@ -18,33 +17,54 @@ namespace HpKeyService
 
             try
             {
-                while (Interception.Receive(context, device = Interception.Wait(context), ref stroke, 1) > 0)
+                while (true)
                 {
-                    input.Add(stroke.key);
+                    var device = Interception.Wait(context);
+                    if (Interception.Receive(context, device, ref stroke, 1) <= 0)
+                        break;
 
-                    while (input.Count > 0)
+                    if (device == 1)
                     {
-                        var match = FindMatch(input);
-                        if (match == null)
+                        input.Add(stroke.key);
+
+                        while (input.Count > 0)
                         {
-                            stroke.key = input[0];
-                            Interception.Send(context, device, ref stroke, 1);
-                            input.RemoveAt(0);
-                            continue;
-                        }
-                        else
-                        {
-                            if (match.Length > 0)
+                            var match = FindMatch(input);
+                            if (match == null)
                             {
-                                for (var i = 0; i < match.Length; i++)
-                                {
-                                    stroke.key = match[i];
-                                    Interception.Send(context, device, ref stroke, 1);
-                                }
-                                input.Clear();
+                                stroke.key = input[0];
+                                Interception.Send(context, 1, ref stroke, 1);
+                                input.RemoveAt(0);
+                                continue;
                             }
-                            break;
+                            else
+                            {
+                                if (match.Length > 0)
+                                {
+                                    for (var i = 0; i < match.Length; i++)
+                                    {
+                                        stroke.key = match[i];
+                                        Interception.Send(context, 1, ref stroke, 1);
+                                    }
+                                    input.Clear();
+                                }
+                                break;
+                            }
                         }
+                    }
+                    else
+                    {
+                        var key = stroke.key;
+
+                        for (var i = 0; i < input.Count; i++)
+                        {
+                            stroke.key = input[i];
+                            Interception.Send(context, 1, ref stroke, 1);
+                        }
+                        input.Clear();
+
+                        stroke.key = key;
+                        Interception.Send(context, device, ref stroke, 1);
                     }
                 }
             }
